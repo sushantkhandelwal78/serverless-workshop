@@ -33,6 +33,22 @@ source .env/bin/activate
 
 ## Install the required dependencies.
 pip install -r requirements.txt
+# pip search aws-cdk.aws | awk '{print $1}' > reqs.txt && pip install --upgrade -r reqs.txt
+```
+
+```
+pip install --upgrade aws-cdk.aws_dynamodb
+pip install --upgrade aws-cdk.aws-lambda
+pip install --upgrade aws-cdk.aws_apigateway
+
+pip install --upgrade aws-cdk.core
+pip install --upgrade aws-cdk.aws_route53
+pip install --upgrade aws-cdk.aws_route53_targets
+pip install --upgrade aws-cdk.aws_certificatemanager
+pip install --upgrade aws-cdk.aws_ec2
+pip install --upgrade aws-cdk.aws_ecs
+
+pip install --upgrade cdk-watchful
 ```
 
 * [x] 3. Synthesize, Bootstrapping, then Deployment
