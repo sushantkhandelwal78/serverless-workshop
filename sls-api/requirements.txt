@@ -2,12 +2,13 @@
 pytest
 
 aws-cdk.core
-aws-cdk.aws-s3
 aws-cdk.aws_dynamodb
 aws-cdk.aws-lambda
 aws-cdk.aws_apigateway
+
 aws-cdk.aws_route53
 aws-cdk.aws_route53_targets
 aws-cdk.aws_certificatemanager
-aws-cdk.aws_ec2
+aws-cdk.aws_s3
+
 cdk-watchful

@@ -1,17 +1,14 @@
-/home/ec2-user/environment/sls-api
+GitHub/sls-app/sls-api
 ├── README.md
 ├── app.py
+├── buildspec.yml
 ├── cdk.json
-├── cdk.out
-|  ├── cdk.out
-|  ├── manifest.json
-|  ├── sls-api.template.json
-|  └── tree.json
+├── lambda
+|  └── handler.py
 ├── pipeline
 |  ├── README.md
 |  ├── bin
 |  ├── cdk.json
-|  ├── cdk.out
 |  ├── jest.config.js
 |  ├── lib
 |  ├── node_modules
@@ -19,6 +16,7 @@
 |  ├── package.json
 |  ├── test
 |  └── tsconfig.json
+├── project-directory.txt
 ├── requirements.txt
 ├── setup.py
 ├── sls_api
@@ -29,7 +27,4 @@
 ├── source.bat
 └── tests
    ├── __init__.py
-   ├── __pycache__
    └── unit
-
-directory: 13 file: 19
