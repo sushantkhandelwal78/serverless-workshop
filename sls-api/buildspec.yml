@@ -1,0 +1,33 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.8
+    commands:
+      ## Install packages or any pre-reqs in this phase.
+      - npm install -g aws-cdk
+      ## Installing project dependencies
+      - pip install -r requirements.txt
+  
+  pre_build:
+    commands:
+      ## Run tests, lint scripts or any other pre-build checks.
+      - pip install pytest pytest-mock --user
+      - python -m pytest tests/ -v
+
+  build:
+    commands:
+      ## Use Build phase to build your artifacts (compile, etc.)
+      - cdk synth > packaged.yaml
+
+  post_build:
+    commands:
+      ## Use Post-Build for notifications, git tags, upload artifacts to S3
+      # - sam package --s3-bucket $PACKAGE_BUCKET --output-template-file packaged.yaml
+      - ls
+
+artifacts:
+  discard-paths: yes
+  files:
+    ## List of local artifacts that will be passed down the pipeline
+    - packaged.yaml

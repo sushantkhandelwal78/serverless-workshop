@@ -1,0 +1,378 @@
+Resources:
+  SlsApiQueue0A1DF088:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 300
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiQueue/Resource
+  SlsApiQueuePolicy6B720211:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sqs:SendMessage
+            Condition:
+              ArnEquals:
+                aws:SourceArn:
+                  Ref: SlsApiTopicB0643049
+            Effect: Allow
+            Principal:
+              Service: sns.amazonaws.com
+            Resource:
+              Fn::GetAtt:
+                - SlsApiQueue0A1DF088
+                - Arn
+        Version: "2012-10-17"
+      Queues:
+        - Ref: SlsApiQueue0A1DF088
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiQueue/Policy/Resource
+  SlsApiQueueslsapiSlsApiTopicD95456A86431BE34:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: sqs
+      TopicArn:
+        Ref: SlsApiTopicB0643049
+      Endpoint:
+        Fn::GetAtt:
+          - SlsApiQueue0A1DF088
+          - Arn
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiQueue/slsapiSlsApiTopicD95456A8/Resource
+  SlsApiTopicB0643049:
+    Type: AWS::SNS::Topic
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiTopic/Resource
+  mappingtable5416B587:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+      ProvisionedThroughput:
+        ReadCapacityUnits: 10
+        WriteCapacityUnits: 5
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: sls-api/mapping-table/Resource
+  SlsApiFunctionServiceRole45C1AE37:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiFunction/ServiceRole/Resource
+  SlsApiFunctionServiceRoleDefaultPolicyDFD55CF8:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - dynamodb:BatchGetItem
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:Query
+              - dynamodb:GetItem
+              - dynamodb:Scan
+              - dynamodb:BatchWriteItem
+              - dynamodb:PutItem
+              - dynamodb:UpdateItem
+              - dynamodb:DeleteItem
+            Effect: Allow
+            Resource:
+              - Fn::GetAtt:
+                  - mappingtable5416B587
+                  - Arn
+              - Ref: AWS::NoValue
+        Version: "2012-10-17"
+      PolicyName: SlsApiFunctionServiceRoleDefaultPolicyDFD55CF8
+      Roles:
+        - Ref: SlsApiFunctionServiceRole45C1AE37
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiFunction/ServiceRole/DefaultPolicy/Resource
+  SlsApiFunction51C21921:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7S3Bucket64C9BC0E
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7S3VersionKey54FFC8C4
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7S3VersionKey54FFC8C4
+      Handler: handler.main
+      Role:
+        Fn::GetAtt:
+          - SlsApiFunctionServiceRole45C1AE37
+          - Arn
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME:
+            Ref: mappingtable5416B587
+      Timeout: 300
+    DependsOn:
+      - SlsApiFunctionServiceRoleDefaultPolicyDFD55CF8
+      - SlsApiFunctionServiceRole45C1AE37
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiFunction/Resource
+      aws:asset:path: asset.6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7
+      aws:asset:property: Code
+  SlsApiGatewayC0E653D8:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SlsApiGateway
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Resource
+  SlsApiGatewayDeployment90BEFE6A364f5ca2641c3dbd0ee64c010a36775b:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: SlsApiGatewayC0E653D8
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - SlsApiGatewayproxyANY5F34DE04
+      - SlsApiGatewayproxyFF57184D
+      - SlsApiGatewayANYCBDB9467
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Deployment/Resource
+  SlsApiGatewayDeploymentStageprod8CBC06DF:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: SlsApiGatewayC0E653D8
+      DeploymentId:
+        Ref: SlsApiGatewayDeployment90BEFE6A364f5ca2641c3dbd0ee64c010a36775b
+      StageName: prod
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/DeploymentStage.prod/Resource
+  SlsApiGatewayCloudWatchRoleDC331E04:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/CloudWatchRole/Resource
+  SlsApiGatewayAccount72F53140:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - SlsApiGatewayCloudWatchRoleDC331E04
+          - Arn
+    DependsOn:
+      - SlsApiGatewayC0E653D8
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Account
+  SlsApiGatewayproxyFF57184D:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - SlsApiGatewayC0E653D8
+          - RootResourceId
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: SlsApiGatewayC0E653D8
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/{proxy+}/Resource
+  SlsApiGatewayproxyANYApiPermissionslsapiSlsApiGateway73572A2BANYproxy1AE02129:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - SlsApiFunction51C21921
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:ap-southeast-1:"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: SlsApiGatewayC0E653D8
+            - /
+            - Ref: SlsApiGatewayDeploymentStageprod8CBC06DF
+            - /*/{proxy+}
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/{proxy+}/ANY/ApiPermission.slsapiSlsApiGateway73572A2B.ANY..{proxy+}
+  SlsApiGatewayproxyANYApiPermissionTestslsapiSlsApiGateway73572A2BANYproxy6EAA9936:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - SlsApiFunction51C21921
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:ap-southeast-1:"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: SlsApiGatewayC0E653D8
+            - /test-invoke-stage/*/{proxy+}
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/{proxy+}/ANY/ApiPermission.Test.slsapiSlsApiGateway73572A2B.ANY..{proxy+}
+  SlsApiGatewayproxyANY5F34DE04:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: SlsApiGatewayproxyFF57184D
+      RestApiId:
+        Ref: SlsApiGatewayC0E653D8
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :apigateway:ap-southeast-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - SlsApiFunction51C21921
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/{proxy+}/ANY/Resource
+  SlsApiGatewayANYApiPermissionslsapiSlsApiGateway73572A2BANY52045BCA:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - SlsApiFunction51C21921
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:ap-southeast-1:"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: SlsApiGatewayC0E653D8
+            - /
+            - Ref: SlsApiGatewayDeploymentStageprod8CBC06DF
+            - /*/
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/ANY/ApiPermission.slsapiSlsApiGateway73572A2B.ANY..
+  SlsApiGatewayANYApiPermissionTestslsapiSlsApiGateway73572A2BANYADE0A301:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - SlsApiFunction51C21921
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:ap-southeast-1:"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: SlsApiGatewayC0E653D8
+            - /test-invoke-stage/*/
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/ANY/ApiPermission.Test.slsapiSlsApiGateway73572A2B.ANY..
+  SlsApiGatewayANYCBDB9467:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Fn::GetAtt:
+          - SlsApiGatewayC0E653D8
+          - RootResourceId
+      RestApiId:
+        Ref: SlsApiGatewayC0E653D8
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :apigateway:ap-southeast-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - SlsApiFunction51C21921
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: sls-api/SlsApiGateway/Default/ANY/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.41.0,@aws-cdk/assets=1.25.0,@aws-cdk/aws-apigateway=1.25.0,@aws-cdk/aws-applicationautoscaling=1.25.0,@aws-cdk/aws-autoscaling=1.25.0,@aws-cdk/aws-autoscaling-common=1.25.0,@aws-cdk/aws-autoscaling-hooktargets=1.25.0,@aws-cdk/aws-certificatemanager=1.25.0,@aws-cdk/aws-cloudformation=1.25.0,@aws-cdk/aws-cloudfront=1.25.0,@aws-cdk/aws-cloudwatch=1.25.0,@aws-cdk/aws-dynamodb=1.25.0,@aws-cdk/aws-ec2=1.25.0,@aws-cdk/aws-ecr=1.25.0,@aws-cdk/aws-ecr-assets=1.25.0,@aws-cdk/aws-ecs=1.25.0,@aws-cdk/aws-elasticloadbalancing=1.25.0,@aws-cdk/aws-elasticloadbalancingv2=1.25.0,@aws-cdk/aws-events=1.25.0,@aws-cdk/aws-iam=1.25.0,@aws-cdk/aws-kms=1.25.0,@aws-cdk/aws-lambda=1.25.0,@aws-cdk/aws-logs=1.25.0,@aws-cdk/aws-route53=1.25.0,@aws-cdk/aws-route53-targets=1.25.0,@aws-cdk/aws-s3=1.25.0,@aws-cdk/aws-s3-assets=1.25.0,@aws-cdk/aws-sam=1.25.0,@aws-cdk/aws-secretsmanager=1.25.0,@aws-cdk/aws-servicediscovery=1.25.0,@aws-cdk/aws-sns=1.25.0,@aws-cdk/aws-sns-subscriptions=1.25.0,@aws-cdk/aws-sqs=1.25.0,@aws-cdk/aws-ssm=1.25.0,@aws-cdk/aws-stepfunctions=1.25.0,@aws-cdk/aws-stepfunctions-tasks=1.25.0,@aws-cdk/core=1.25.0,@aws-cdk/custom-resources=1.25.0,@aws-cdk/cx-api=1.25.0,@aws-cdk/region-info=1.25.0,jsii-runtime=Python/3.7.7
+Parameters:
+  AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7S3Bucket64C9BC0E:
+    Type: String
+    Description: S3 bucket for asset "6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7"
+  AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7S3VersionKey54FFC8C4:
+    Type: String
+    Description: S3 key for asset version "6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7"
+  AssetParameters6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7ArtifactHash2BA77640:
+    Type: String
+    Description: Artifact hash for asset "6a6ce4ecf92d01b4f9fc31b28d091a0a8efc9d37e5efc0984be1960ed77ce6a7"
+Outputs:
+  SlsApiGatewayEndpoint34AD9D64:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: SlsApiGatewayC0E653D8
+          - .execute-api.ap-southeast-1.
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: SlsApiGatewayDeploymentStageprod8CBC06DF
+          - /
+
