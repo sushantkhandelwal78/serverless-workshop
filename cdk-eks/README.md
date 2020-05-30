@@ -18,13 +18,13 @@ cd ~/environment/cdk-eks
 npm i
 
 # cdk bootstrapping (only required for the 1st time)
-npx cdk bootstrap
+cdk bootstrap
 
 # cdk diff to see what will be created
-npx cdk diff
+cdk diff
 
 # cdk deploy
-npx cdk deploy
+cdk deploy
 ```
 
 
@@ -32,10 +32,10 @@ npx cdk deploy
 
 ```bash
 # only for the first time in this region
-AWS_REGION=ap-northeast-1 npx cdk bootrap
+AWS_REGION=ap-southeast-2 cdk bootrap
 # cdk diff
-AWS_REGION=ap-northeast-1 npx cdk diff
-AWS_REGION=ap-northeast-1 npx cdk depoy
+AWS_REGION=ap-southeast-2 cdk diff
+AWS_REGION=ap-southeast-2 cdk depoy
 ```
 
 
@@ -43,9 +43,9 @@ AWS_REGION=ap-northeast-1 npx cdk depoy
 
 ```bash
 # To deploy in the default vpc
-npx cdk diff -c use_default_vpc=1
+cdk diff -c use_default_vpc=1
 # To deploy in a specific VPC ID
-npx cdk diff -c use_vpc_id=vpc-123456
+cdk diff -c use_vpc_id=vpc-123456
 ```
 
 
