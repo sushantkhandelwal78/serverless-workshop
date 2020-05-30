@@ -4,6 +4,7 @@ import * as dotenv from 'dotenv';
 import * as ec2 from '@aws-cdk/aws-ec2';
 import * as iam from '@aws-cdk/aws-iam';
 import * as eks from '@aws-cdk/aws-eks';
+import { InstanceType, Vpc } from '@aws-cdk/aws-ec2';
 
 export class CdkEksStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -40,6 +41,65 @@ export class CdkEksStack extends cdk.Stack {
       outputClusterName: true,
       version: '1.16',
     });
+    
+    /** Conditionally create spot instances */
+    // if(this.node.tryGetContext('with_spot_instances') === 'yes'){
+      // Create 2 * t3.large EC2 Spot instances
+      cluster.addCapacity('Spot', {
+        maxCapacity: 2,
+        spotPrice: '0.04',
+        instanceType: new InstanceType('t3.large'),
+        bootstrapOptions: {
+          kubeletExtraArgs: '--node-labels foo=bar'
+        },
+      })      
+    // };
+    
+    /** Conditionally add the 2nd NodeGroup */
+    // if(this.node.tryGetContext('with_2nd_nodegroup') === 'yes'){
+      // Create 2nd NodeGroup
+      cluster.addNodegroup('NodeGroup2', {
+        desiredSize: 1,
+        nodegroupName: 'NodeGroup2',
+        instanceType: new InstanceType('t3.large'),
+      })      
+    // };
+    
+    /** conditionally create service account for a pod */
+    // if(this.node.tryGetContext('with_irsa') === 'yes'){
+    //   const sa = cluster.addServiceAccount('MyServiceAccount', {});
+  
+    //   cluster.addResource('mypod', {
+    //     apiVersion: 'v1',
+    //     kind: 'Pod',
+    //     metadata: { name: 'mypod' },
+    //     spec: {
+    //       serviceAccountName: sa.serviceAccountName,
+    //       containers: [
+    //         {
+    //           name: 'main',
+    //           image: 'springio/gs-spring-boot-docker',
+    //           ports: [{ containerPort: 5000 }],
+    //         }
+    //       ]
+    //     }
+    //   });
+      
+    //   new cdk.CfnOutput(this, 'SARoleArn', { value: sa.role.roleArn })
+    // };
+    
+    /** conditionally create a fargate profile */
+    // if(this.node.tryGetContext('with_fargate_profile') === 'yes'){
+    //   const profile = cluster.addFargateProfile('FargateProfile', {
+    //     selectors: [
+    //       { namespace: 'default' }
+    //       ]
+    //   });
+      
+    //   profile.fargateProfileName
+      
+    //   new cdk.CfnOutput(this, 'FargareProfileName', { value: profile.fargateProfileName })
+    // };
     
   }
 }
