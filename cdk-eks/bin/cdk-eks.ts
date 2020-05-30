@@ -11,11 +11,11 @@ const env = {
     account: process.env.CDK_DEFAULT_ACCOUNT
   };
 
-// new CdkEksStack(app, 'CdkEksStack', {
+// new CdkEksStack(app, 'EksStack', {
 //     env: {
 //         region: process.env.AWS_REGION,
 //         account: process.env.AWS_ACCOUNT_ID
 //     }
 // });
   
-const cdkEksStack = new CdkEksStack(app, 'CdkEksStack', { env })
+const eksStack = new CdkEksStack(app, 'EksStack', { env })
