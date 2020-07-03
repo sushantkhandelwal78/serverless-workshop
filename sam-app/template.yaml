@@ -11,10 +11,10 @@ Resources:
   InitStateFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: getInitState/
-      Handler: app.lambdaHandler
+      CodeUri: get_init_state/
+      Handler: app.handler
       MemorySize: 128
-      Runtime: nodejs12.x
+      Runtime: python3.8
       Environment:
         Variables:
           DDB_TABLE_NAME: !Ref DynamoDBTable     
@@ -32,10 +32,10 @@ Resources:
     # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Type: AWS::Serverless::Function 
     Properties:
-      CodeUri: getUploadURL/
+      CodeUri: get_upload_url/
       Handler: app.handler
       MemorySize: 128
-      Runtime: nodejs12.x
+      Runtime: python3.8
       Environment:
         Variables:
           UploadBucket: !Ref UploadBucket
